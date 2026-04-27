@@ -1,0 +1,33 @@
+<div class="text-center transition-opacity duration-700 ease-in">
+    <div class="mb-4">
+        {% set current = weather.data[0] if is_history else weather.current %}
+        <p class="text-6xl mb-4">
+            {% if 'rain' in current.weather[0].description %} 🌧️ 
+            {% elif 'cloud' in current.weather[0].description %} ☁️ 
+            {% elif 'clear' in current.weather[0].description %} ☀️ 
+            {% else %} 🌤️ {% endif %}
+        </p>
+        <p class="text-slate-400 tracking-[0.2em] uppercase text-xs font-semibold">
+            {{ current.weather[0].description }}
+        </p>
+    </div>
+
+    <h2 class="text-9xl font-thin tracking-tighter mb-6">
+        {{ current.temp | round }}°
+    </h2>
+
+    <div class="grid grid-cols-3 gap-4 max-w-sm mx-auto mt-10 border-t border-slate-900 pt-8">
+        <div class="text-center">
+            <p class="text-slate-500 text-[10px] uppercase mb-1">Humidity</p>
+            <p class="font-medium text-sm">{{ current.humidity }}%</p>
+        </div>
+        <div class="text-center border-x border-slate-900">
+            <p class="text-slate-500 text-[10px] uppercase mb-1">Wind</p>
+            <p class="font-medium text-sm">{{ current.wind_speed }} <span class="text-[10px]">m/s</span></p>
+        </div>
+        <div class="text-center">
+            <p class="text-slate-500 text-[10px] uppercase mb-1">UV Index</p>
+            <p class="font-medium text-sm">{{ current.uvi }}</p>
+        </div>
+    </div>
+</div>
