@@ -21,7 +21,10 @@ class WeatherServiceError(Exception):
 
 def _require_api_key():
     if not API_KEY:
-        raise WeatherServiceError("OPENWEATHER_API_KEY is missing.")
+        raise WeatherServiceError(
+            "Weather service is not configured yet. Add OPENWEATHER_API_KEY in your local .env file "
+            "or in your hosting provider environment variables."
+        )
 
 
 def _cache_get(cache_key):
