@@ -2,6 +2,8 @@ import os
 from datetime import date, datetime
 
 from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, redirect, render_template, request, url_for
 
 from models import db
@@ -12,10 +14,7 @@ from services.weather_service import (
     geocode_location,
     get_current_weather,
     get_weather_for_date,
-    reverse_geocode,
 )
-
-load_dotenv()
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///weather_cache.db"
@@ -44,6 +43,7 @@ def _build_context(error=None):
         "location_name": None,
         "lat": None,
         "lon": None,
+        "location_query": None,
     }
 
 
@@ -57,6 +57,7 @@ def index():
     context = _build_context()
     lat = request.args.get("lat")
     lon = request.args.get("lon")
+    location_query = request.args.get("location_name")
 
     if not lat or not lon:
         return render_template("index.html", **context)
@@ -65,13 +66,17 @@ def index():
         lat_value = _safe_float(lat, "latitude")
         lon_value = _safe_float(lon, "longitude")
         weather = get_current_weather(lat_value, lon_value)
-        location_data = reverse_geocode(lat_value, lon_value)
 
         context.update(
             weather=weather,
-            location_name=build_location_name(location_data, lat_value, lon_value),
+            location_name=build_location_name(
+                fallback_name=location_query,
+                fallback_lat=lat_value,
+                fallback_lon=lon_value,
+            ),
             lat=lat_value,
             lon=lon_value,
+            location_query=location_query,
         )
     except WeatherServiceError as exc:
         context["error"] = str(exc)
@@ -88,7 +93,12 @@ def search():
     try:
         location = geocode_location(city)
         return redirect(
-            url_for("index", lat=location["lat"], lon=location["lon"], city=build_location_name(location))
+            url_for(
+                "index",
+                lat=location["latitude"],
+                lon=location["longitude"],
+                location_name=build_location_name(location),
+            )
         )
     except WeatherServiceError as exc:
         context = _build_context(error=str(exc))
@@ -104,6 +114,7 @@ def date_weather():
     lat = request.args.get("lat")
     lon = request.args.get("lon")
     date_str = request.args.get("date")
+    location_query = request.args.get("location_name")
 
     try:
         if not lat or not lon:
@@ -116,15 +127,19 @@ def date_weather():
         selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
 
         weather = get_weather_for_date(lat_value, lon_value, selected_date)
-        location_data = reverse_geocode(lat_value, lon_value)
 
         context.update(
             weather=weather,
             selected_date=selected_date.isoformat(),
             mode=classify_date(selected_date),
-            location_name=build_location_name(location_data, lat_value, lon_value),
+            location_name=build_location_name(
+                fallback_name=location_query,
+                fallback_lat=lat_value,
+                fallback_lon=lon_value,
+            ),
             lat=lat_value,
             lon=lon_value,
+            location_query=location_query,
         )
     except ValueError:
         context["error"] = "Use a valid date."

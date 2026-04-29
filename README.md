@@ -1,40 +1,64 @@
 # My Dark Sky
 
-Beautiful Flask weather app inspired by Dark Sky, powered by OpenWeather.
+My Dark Sky is a Flask weather application inspired by the original Dark Sky product. It provides a polished interface for checking today's conditions, searching by city, using the browser's current location, and viewing weather for a specific past or future date.
 
 ## Features
 
-- Current location weather with browser geolocation
-- Search weather by specific city
-- Today's live weather
-- Forecast or historical weather for a chosen date
-- SQLite cache for weather and geocoding responses with a 5-minute TTL
-- Tailwind-based responsive UI
+- Current location weather using browser geolocation
+- City search using geocoding
+- Today's live weather conditions
+- Date-based weather lookup for both past and future dates
+- SQLite cache with a five-minute expiration window
+- Responsive Tailwind CSS interface
 
-## Stack
+## Tech Stack
 
-- Python
+- Python 3
 - Flask
-- SQLite with Flask-SQLAlchemy
+- Flask-SQLAlchemy with SQLite
 - Tailwind CSS
-- OpenWeather One Call 3.0 and Geocoding APIs
+- Open-Meteo forecast, archive, and geocoding APIs
 
-## Local Run
+## Project Structure
 
-1. Install dependencies:
+- `app.py`: Flask routes, template rendering, and app startup
+- `models.py`: SQLAlchemy cache model
+- `services/weather_service.py`: weather lookup, geocoding, normalization, and caching
+- `templates/`: Jinja templates for the UI
+- `static/js/script.js`: browser geolocation logic
+
+## Installation
+
+1. Clone the repository.
+2. Create and activate a virtual environment.
+3. Install dependencies:
    `pip install -r requirements.txt`
-2. Copy `.env.example` to `.env`
-3. Set `OPENWEATHER_API_KEY`
-4. Start the app:
+4. Copy `.env.example` to `.env`
+5. Optionally change `FLASK_SECRET` in `.env`
+6. Run the application:
    `python app.py`
+
+## Environment Variables
+
+This project no longer requires a paid weather API key.
+
+Supported environment variables:
+
+- `FLASK_SECRET`: secret key for Flask sessions
+- `FLASK_DEBUG`: set to `true` for local debugging
+- `PORT`: hosting platform port, used automatically in production
+
+## Caching
+
+Weather responses and geocoding results are cached in SQLite for five minutes. This reduces repeated external API requests and satisfies the project caching requirement.
 
 ## Deployment
 
-This project is ready for cloud deployment on platforms that support Flask apps.
+The application is ready to deploy on platforms such as Render, Railway, or similar Flask-compatible hosts.
 
 - Production server: `gunicorn app:app`
-- Procfile included
-- Port binding handled with the `PORT` environment variable
-- Render blueprint file included as `render.yaml`
+- `Procfile` included
+- `render.yaml` included
+- `PORT` environment variable supported
 
-After deployment, put only the live app URL inside `my_dark_sky_url.txt`.
+After deployment, place only the live application URL in `my_dark_sky_url.txt`.
